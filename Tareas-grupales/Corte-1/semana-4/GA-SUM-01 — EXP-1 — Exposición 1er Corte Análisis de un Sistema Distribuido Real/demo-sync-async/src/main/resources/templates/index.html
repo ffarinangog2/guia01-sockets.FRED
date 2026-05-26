@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computación Síncrona y Asíncrona</title>
+
+    <style>
+
+        body {
+            background-color: #0f172a;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        p {
+            text-align: center;
+            color: #cbd5e1;
+        }
+
+        .container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin-top: 50px;
+        }
+
+        .card {
+            background-color: #1e293b;
+            width: 400px;
+            padding: 25px;
+            border-radius: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .sync-btn {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .async-btn {
+            background-color: #22c55e;
+            color: white;
+        }
+
+        .status {
+            margin-top: 20px;
+            background-color: #0f172a;
+            padding: 15px;
+            border-radius: 10px;
+            min-height: 120px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<h1>Simulación de Computación Síncrona y Asíncrona</h1>
+
+<p>
+    Aplicaciones Distribuidas - 7mo Semestre
+</p>
+
+<div class="container">
+
+    <div class="card">
+
+        <h2>Procesamiento Síncrono</h2>
+
+        <p>
+            El sistema espera la respuesta antes de continuar.
+        </p>
+
+        <button class="sync-btn">
+            Iniciar Proceso Síncrono
+        </button>
+
+        <div class="status">
+            Estado del proceso síncrono...
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Procesamiento Asíncrono</h2>
+
+        <p>
+            El sistema continúa ejecutando tareas.
+        </p>
+
+        <button class="async-btn">
+            Iniciar Proceso Asíncrono
+        </button>
+
+        <div class="status">
+            Estado del proceso asíncrono...
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    const syncButton = document.querySelector(".sync-btn");
+    const asyncButton = document.querySelector(".async-btn");
+
+    const statusBoxes = document.querySelectorAll(".status");
+
+    const syncStatus = statusBoxes[0];
+    const asyncStatus = statusBoxes[1];
+
+    // =========================
+    // PROCESO SINCRONO
+    // =========================
+
+    syncButton.addEventListener("click", function () {
+
+        syncStatus.innerHTML = "";
+
+        syncButton.disabled = true;
+        asyncButton.disabled = true;
+
+        for (let i = 1; i <= 5; i++) {
+
+            syncStatus.innerHTML +=
+                "<p>Procesando segundo " + i + "...</p>";
+
+            const start = Date.now();
+
+            while (Date.now() - start < 1000) {
+
+            }
+
+        }
+
+        syncStatus.innerHTML +=
+            "<p><strong>Proceso síncrono completado.</strong></p>";
+
+        syncButton.disabled = false;
+        asyncButton.disabled = false;
+
+    });
+
+    // =========================
+    // PROCESO ASINCRONO
+    // =========================
+
+    asyncButton.addEventListener("click", async function () {
+
+        asyncStatus.innerHTML = "";
+
+        for (let i = 1; i <= 5; i++) {
+
+            asyncStatus.innerHTML +=
+                "<p>Procesando segundo " + i + "...</p>";
+
+            await new Promise(resolve =>
+                setTimeout(resolve, 1000)
+            );
+
+        }
+
+        asyncStatus.innerHTML +=
+            "<p><strong>Proceso asíncrono completado.</strong></p>";
+
+    });
+
+</script>
+
+</body>
+
+</html>
