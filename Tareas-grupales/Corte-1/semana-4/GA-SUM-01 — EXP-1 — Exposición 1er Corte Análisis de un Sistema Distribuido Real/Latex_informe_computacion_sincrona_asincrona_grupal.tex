@@ -1,0 +1,711 @@
+%================================================================
+%  UNIVERSIDAD TÉCNICA ESTATAL DE QUEVEDO
+%  Facultad de Ciencias de la Ingeniería
+%  Ingeniería en Software – 7mo Nivel
+%  Aplicaciones Distribuidas
+%  GA-SUM-01 — EXP-1 — Exposición 1er Corte
+%================================================================
+ 
+\documentclass[12pt,a4paper]{article}
+ 
+% ── Paquetes ──────────────────────────────────────────────────
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\geometry{left=3cm,right=2.5cm,top=3cm,bottom=2.5cm,headheight=15pt}
+ 
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=black,
+    urlcolor=blue,
+    pdftitle={Computación Síncrona y Asíncrona},
+    pdfauthor={Carpio, Farinango, Vinueza},
+}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+ 
+% ── Configuración de página ───────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{Computación Síncrona y Asíncrona}}
+\fancyhead[R]{\small\textit{Aplicaciones Distribuidas — UTEQ}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+ 
+% ── Formato de secciones ──────────────────────────────────────
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries}{}{0em}{}
+\titleformat{\subsubsection}{\normalsize\itshape}{}{0em}{}
+ 
+% ── Interlineado ──────────────────────────────────────────────
+\onehalfspacing
+ 
+% ── Cajas informativas ────────────────────────────────────────
+\newtcolorbox{infobox}[1][]{
+  enhanced,colback=blue!5!white,colframe=blue!40!black,
+  fonttitle=\bfseries,title=#1,breakable
+}
+\newtcolorbox{warnbox}[1][]{
+  enhanced,colback=orange!10!white,colframe=orange!60!black,
+  fonttitle=\bfseries,title=#1,breakable
+}
+ 
+%================================================================
+%  PORTADA
+%================================================================
+\begin{document}
+ 
+\begin{titlepage}
+  \centering
+  \vspace*{0.2cm}
+ 
+  {\large\bfseries UNIVERSIDAD TÉCNICA ESTATAL DE QUEVEDO}\\[0.1cm]
+  {\normalsize Facultad de Ciencias de la Ingeniería}\\[0.1cm]
+  {\normalsize Carrera de Ingeniería en Software}\\[0.4cm]
+ 
+  \rule{\textwidth}{1.5pt}\\[0.2cm]
+  {\LARGE\bfseries Computación Síncrona y Asíncrona\\[0.05cm]
+  en Sistemas Distribuidos}\\[0.2cm]
+  \rule{\textwidth}{1.5pt}\\[0.4cm]
+ 
+  \begin{tabular}{@{}p{3.5cm}p{9cm}@{}}
+    \textbf{Asignación:}  & GA-SUM-01 --- EXP-1 --- Exposición 1er Corte \\[0.25cm]
+    \textbf{Materia:}     & Aplicaciones Distribuidas \\[0.25cm]
+    \textbf{Docente:}     & Ing. Guerrero Ulloa Gleiston Cicerón \\[0.25cm]
+    \textbf{Nivel:}       & 7mo Nivel \\[0.25cm]
+    \textbf{Año Lectivo:} & 2026 -- 2027 PPA \\
+  \end{tabular}\\[0.5cm]
+ 
+  \rule{0.65\textwidth}{0.4pt}\\[0.35cm]
+  {\normalsize\bfseries Integrantes del Grupo}\\[0.3cm]
+  \begin{tabular}{l}
+    Carpio Mendoza Carlos José \\[0.1cm]
+    Farinango Guandinango Freddy Vladimir \\[0.1cm]
+    Vinueza Sánchez Harold Nicolás \\
+  \end{tabular}\\[0.4cm]
+ 
+  \rule{0.65\textwidth}{0.4pt}
+ 
+  \vfill
+  {\normalsize Quevedo, Los Ríos --- Ecuador}\\[0.05cm]
+  {\normalsize \today}
+\end{titlepage}
+ 
+%================================================================
+%  TABLA DE CONTENIDOS
+%================================================================
+\tableofcontents
+\newpage
+ 
+%================================================================
+%  RESUMEN
+%================================================================
+\section{Resumen}
+ 
+El presente informe expone los fundamentos teóricos y prácticos de los dos paradigmas dominantes de comunicación en los sistemas distribuidos modernos: la \textit{computación síncrona} y la \textit{computación asíncrona}. Se analiza en detalle qué diferencia a cada modelo, cuáles son sus ventajas, limitaciones y los escenarios en los que resulta más conveniente emplear cada uno. Se estudian también las tecnologías de soporte —REST, gRPC, Apache Kafka, RabbitMQ, entre otras— y se examina un caso de estudio bancario que ilustra cómo ambos paradigmas conviven en arquitecturas híbridas de producción. Todas las afirmaciones se sustentan en referencias académicas con identificador DOI verificable, indexadas en bases de datos reconocidas de ingeniería.
+ 
+\textbf{Palabras clave:} computación síncrona, computación asíncrona, sistemas distribuidos, arquitectura basada en eventos, middleware, message broker, escalabilidad.
+ 
+%================================================================
+%  1. INTRODUCCIÓN
+%================================================================
+\section{Introducción}
+ 
+Los sistemas informáticos modernos raramente operan como unidades aisladas; por el contrario, se componen de múltiples servicios, nodos y componentes que deben comunicarse de manera eficiente para ofrecer una experiencia coherente al usuario final. En este contexto, la elección del modelo de comunicación resulta fundamental para determinar el rendimiento, la resiliencia y la escalabilidad de una aplicación \cite{ref1}.
+ 
+Históricamente, la arquitectura cliente-servidor basada en protocolos síncronos —como HTTP convencional— fue la solución predominante para construir servicios de red. Sin embargo, con la explosión de la computación en la nube, los microservicios y los sistemas de alta disponibilidad, la comunicación asíncrona emergió como un complemento indispensable que permite desacoplar componentes, gestionar picos de carga y mejorar la tolerancia a fallos \cite{ref2}.
+ 
+Este informe parte de los contenidos abordados en la exposición \textit{Computación Síncrona y Asíncrona} y los amplía con fundamento académico, con el objetivo de proporcionar un análisis profundo y verificable de ambos paradigmas, sus tecnologías asociadas y sus aplicaciones en entornos reales.
+ 
+%================================================================
+%  2. COMPUTACIÓN SÍNCRONA
+%================================================================
+\section{Computación Síncrona}
+ 
+\subsection{Definición y características fundamentales}
+ 
+La \textbf{computación síncrona} es el modelo de comunicación en el que un proceso emisor envía una solicitud y permanece bloqueado —es decir, suspende su propia ejecución— hasta recibir la respuesta del proceso receptor. Este comportamiento implica un \textit{acoplamiento temporal} fuerte entre las partes: el cliente y el servidor deben estar simultáneamente disponibles para que la interacción se lleve a cabo \cite{ref3}.
+ 
+Las características principales de este modelo son las siguientes:
+ 
+\begin{itemize}[leftmargin=1.5cm]
+  \item \textbf{Secuencialidad estricta:} las tareas se ejecutan en un orden determinístico; ninguna operación siguiente puede iniciarse hasta que la anterior haya concluido.
+  \item \textbf{Bloqueo del hilo de ejecución:} el proceso queda inactivo mientras aguarda la respuesta, lo que representa un consumo improductivo de recursos del sistema.
+  \item \textbf{Consistencia inmediata:} al recibir la respuesta en tiempo real, el cliente tiene garantía de que la información está actualizada en el momento de la consulta.
+  \item \textbf{Acoplamiento temporal fuerte:} ambos extremos de la comunicación deben estar activos simultáneamente, lo que incrementa la dependencia entre componentes \cite{ref4}.
+\end{itemize}
+ 
+\subsection{Modelo de comunicación síncrona}
+ 
+El flujo de una interacción síncrona puede resumirse en tres fases:
+ 
+\begin{enumerate}
+  \item \textbf{El cliente solicita:} inicia la operación y entra en estado de espera activa (\textit{blocking wait}).
+  \item \textbf{El servidor procesa:} ejecuta la lógica de negocio requerida.
+  \item \textbf{Respuesta inmediata:} el servidor devuelve el resultado y el cliente reanuda su ejecución.
+\end{enumerate}
+ 
+Este modelo es análogo, en el mundo real, a una llamada telefónica convencional: ambas partes deben estar presentes al mismo tiempo para que el intercambio de información ocurra. Si una de ellas no está disponible, la comunicación no puede realizarse.
+ 
+\subsection{Ejemplos del modelo síncrono}
+ 
+\begin{description}
+  \item[Llamada telefónica:] requiere la presencia simultánea de ambos interlocutores para intercambiar información en tiempo real.
+  \item[Petición HTTP clásica:] el navegador envía una solicitud y permanece en espera («cargando») hasta que el servidor devuelve el contenido HTML o los datos JSON.
+  \item[Comunicación cliente-servidor:] el protocolo HTTP estándar opera según el esquema \texttt{Request → Wait → Response}.
+\end{description}
+ 
+\subsection{Tecnologías de comunicación síncrona}
+ 
+\subsubsection{REST (Representational State Transfer)}
+ 
+REST es un estilo arquitectónico para el diseño de APIs web basado en el protocolo HTTP. Sus operaciones son \textit{stateless} —sin estado— y los recursos se identifican mediante URLs uniformes. Es la tecnología de comunicación síncrona más extendida en la industria gracias a su simplicidad y la amplia disponibilidad de herramientas de soporte \cite{ref5}.
+ 
+\subsubsection{gRPC (Google Remote Procedure Call)}
+ 
+gRPC es un framework de código abierto para la invocación remota de procedimientos que utiliza HTTP/2 como protocolo de transporte y \textit{Protocol Buffers} como formato de serialización binaria. Ofrece alto rendimiento, soporte multidioma e interoperabilidad en entornos de microservicios \cite{ref6}. Al igual que REST, el modelo de invocación por defecto es síncrono: el cliente espera la respuesta antes de continuar.
+ 
+\subsubsection{HTTP Blocking}
+ 
+El HTTP convencional (\textit{HTTP/1.1}) implementa por defecto un modelo de bloqueo en el que el cliente abre una conexión TCP, envía la solicitud y suspende su ejecución hasta obtener una respuesta completa. Este comportamiento, si bien simple de implementar, puede generar cuellos de botella bajo carga concurrente elevada \cite{ref7}.
+ 
+\subsection{Casos de uso reales del modelo síncrono}
+ 
+Los escenarios en los que la comunicación síncrona es la opción preferida son aquellos en que se requiere una \textbf{confirmación inmediata} del resultado de una operación:
+ 
+\begin{itemize}
+  \item \textbf{Login bancario:} la validación de credenciales debe producir una respuesta instantánea para garantizar acceso seguro.
+  \item \textbf{Consulta de saldo:} el usuario necesita ver el balance actualizado al momento exacto de la petición.
+  \item \textbf{Compra en línea:} el proceso de checkout requiere confirmación inmediata de la transacción y el estado del pedido.
+  \item \textbf{Pago con tarjeta:} la autorización de pagos debe completarse en segundos tanto en comercios físicos como digitales.
+\end{itemize}
+ 
+\subsection{Problemas del modelo síncrono}
+ 
+A pesar de su simplicidad, el modelo síncrono presenta limitaciones significativas que deben considerarse al diseñar sistemas de alta disponibilidad \cite{ref8}:
+ 
+\begin{tcolorbox}[colback=red!5!white,colframe=red!40!black,title=Problemas del Modelo Síncrono,fonttitle=\bfseries]
+\begin{description}
+  \item[Bloqueo del cliente:] el proceso queda inactivo mientras espera, desperdiciando recursos computacionales y limitando la concurrencia efectiva del sistema.
+  \item[Timeout:] si el servidor no responde dentro del tiempo límite configurado, la conexión se interrumpe abruptamente, generando errores y degradando la experiencia del usuario.
+  \item[Dependencia del servidor:] la disponibilidad del sistema cliente depende directamente de la disponibilidad y rendimiento del servidor; cualquier latencia se propaga de forma inmediata.
+  \item[Baja tolerancia a fallos:] la caída de un único servicio en una cadena de llamadas síncronas puede provocar un \textit{efecto cascada} (\textit{cascading failure}) que afecte a múltiples componentes de la aplicación.
+\end{description}
+\end{tcolorbox}
+ 
+%================================================================
+%  3. COMPUTACIÓN ASÍNCRONA
+%================================================================
+\section{Computación Asíncrona}
+ 
+\subsection{Definición y características fundamentales}
+ 
+La \textbf{computación asíncrona} es el paradigma en el que el proceso emisor envía un mensaje o solicitud sin quedar bloqueado a la espera de una respuesta; puede continuar ejecutando otras tareas de forma concurrente mientras el proceso receptor atiende la solicitud en algún momento posterior \cite{ref9}.
+ 
+Las características esenciales de este modelo son:
+ 
+\begin{itemize}[leftmargin=1.5cm]
+  \item \textbf{No bloqueo:} el proceso emisor no suspende su ejecución; puede atender otras peticiones mientras espera el resultado.
+  \item \textbf{Desacoplamiento temporal:} emisor y receptor no necesitan estar activos al mismo tiempo; los mensajes persisten hasta ser procesados.
+  \item \textbf{Respuesta diferida:} la respuesta se gestiona mediante un mecanismo de notificación: un \textit{callback}, un evento o un mensaje en una cola.
+  \item \textbf{Alta escalabilidad:} al no bloquear hilos de ejecución, el sistema puede manejar un volumen mucho mayor de operaciones concurrentes \cite{ref10}.
+\end{itemize}
+ 
+\subsection{Modelo de comunicación asíncrona}
+ 
+El flujo típico de una interacción asíncrona involucra tres actores:
+ 
+\begin{enumerate}
+  \item \textbf{El cliente envía:} publica un mensaje en una cola o tópico sin esperar respuesta inmediata y continúa su ejecución.
+  \item \textbf{Cola / Middleware:} el mensaje queda almacenado de forma persistente hasta que un consumidor esté disponible para procesarlo.
+  \item \textbf{El consumidor procesa:} cuando tiene capacidad, extrae el mensaje, ejecuta la lógica correspondiente y, opcionalmente, publica una respuesta en otra cola.
+\end{enumerate}
+ 
+Este modelo se asemeja, en el mundo real, al correo electrónico: el remitente envía el mensaje y continúa con sus actividades; el destinatario lo leerá y responderá cuando lo considere oportuno.
+ 
+\subsection{Ejemplos del modelo asíncrono}
+ 
+\begin{description}
+  \item[WhatsApp / Chat:] el usuario envía un mensaje y puede cerrar la aplicación o continuar otras conversaciones sin necesidad de que el destinatario esté conectado en ese instante.
+  \item[Correo electrónico:] paradigma clásico de comunicación diferida; el receptor responde en función de su propia disponibilidad.
+  \item[Colas de mensajes:] sistemas como RabbitMQ permiten que un servicio deposite una tarea en la cola para que otro la procese más adelante, sin acoplamiento temporal entre ambos \cite{ref11}.
+\end{description}
+ 
+\subsection{Características clave del modelo asíncrono}
+ 
+\begin{description}
+  \item[Respuesta diferida:] el cliente no bloquea su hilo de ejecución esperando confirmación inmediata, lo que libera recursos para atender otras peticiones concurrentes.
+  \item[Mensajes almacenados:] los mensajes persisten en la cola, lo que garantiza la entrega incluso si el consumidor no está disponible en el momento del envío (tolerancia a fallos).
+  \item[Alta escalabilidad:] la arquitectura puede manejar grandes volúmenes de solicitudes y absorber picos de tráfico distribuyendo la carga a lo largo del tiempo.
+  \item[Desacoplamiento:] emisor y receptor operan de forma independiente, lo que mejora la resiliencia general del sistema y simplifica el escalado horizontal de cada componente \cite{ref12}.
+\end{description}
+ 
+\subsection{Casos de uso reales del modelo asíncrono}
+ 
+El modelo asíncrono es la opción preferida en escenarios de alta carga donde no se requiere confirmación instantánea \cite{ref13}:
+ 
+\begin{itemize}
+  \item \textbf{Envío de correos electrónicos:} los emails se procesan en segundo plano sin bloquear la respuesta al usuario.
+  \item \textbf{Procesamiento de imágenes:} las operaciones de edición o compresión se encolan y ejecutan de forma diferida.
+  \item \textbf{Notificaciones masivas:} el envío de alertas a miles de usuarios se distribuye a través de colas de mensajes para evitar sobrecargar el sistema.
+  \item \textbf{Streaming de datos:} el análisis continuo de grandes volúmenes de información en tiempo real (IoT, telemetría, logs) se apoya en plataformas asíncronas.
+  \item \textbf{Plataformas de transporte (Uber):} la conexión eficiente entre conductores y pasajeros se gestiona mediante eventos asíncronos.
+  \item \textbf{Plataformas de contenido (TikTok):} la entrega de contenido personalizado a escala global requiere arquitecturas de procesamiento asíncrono para gestionar millones de interacciones por segundo.
+\end{itemize}
+ 
+%================================================================
+%  4. COMPARATIVA ENTRE MODELOS
+%================================================================
+\section{Comparativa: Síncrono vs. Asíncrono}
+ 
+La siguiente tabla resume las diferencias fundamentales entre ambos paradigmas:
+ 
+\begin{table}[H]
+\centering
+\caption{Comparativa de los modelos de computación síncrono y asíncrono}
+\label{tab:comparativa}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|>{\bfseries}X|X|X|}
+\hline
+\textbf{Característica} & \textbf{Computación Síncrona} & \textbf{Computación Asíncrona} \\
+\hline
+Espera de respuesta & Sí (bloquea el hilo) & No (continúa trabajando) \\
+\hline
+Bloquea procesos & Sí & No \\
+\hline
+Velocidad percibida & Menor (sujeto a latencia) & Mayor (mayor rendimiento) \\
+\hline
+Complejidad & Más simple de implementar & Más compleja de gestionar \\
+\hline
+Escalabilidad & Limitada & Alta \\
+\hline
+Acoplamiento & Fuerte (temporal) & Débil (desacoplado) \\
+\hline
+Tolerancia a fallos & Baja & Alta \\
+\hline
+Comunicación & Directa & A través de colas o eventos \\
+\hline
+Dependencia del servidor & Alta & Baja \\
+\hline
+Tecnologías típicas & REST, gRPC, HTTP Blocking & Kafka, RabbitMQ, ActiveMQ \\
+\hline
+\end{tabularx}
+\end{table}
+ 
+\subsection{¿Cuándo usar cada modelo?}
+ 
+La elección entre un modelo síncrono y uno asíncrono depende de los requisitos funcionales y no funcionales de cada caso \cite{ref14}:
+ 
+\begin{infobox}[Modelo Síncrono: cuándo usarlo]
+Úsese cuando se requiera una \textbf{confirmación inmediata} del resultado de la operación: autenticación de usuarios, transacciones financieras, consultas de saldo, compras en línea o cualquier escenario en que el cliente no pueda continuar sin conocer el resultado de la petición.
+\end{infobox}
+ 
+\begin{infobox}[Modelo Asíncrono: cuándo usarlo]
+Úsese cuando el sistema deba manejar \textbf{alta carga concurrente} o cuando el resultado de la operación no sea necesario de inmediato: notificaciones masivas, procesamiento por lotes, pipelines de datos, arquitecturas de microservicios escalables o cualquier tarea de larga duración que pueda ejecutarse en segundo plano.
+\end{infobox}
+ 
+%================================================================
+%  5. EL CONTEXTO DISTRIBUIDO
+%================================================================
+\section{El Contexto Distribuido}
+ 
+\subsection{Sistemas distribuidos y comunicación entre nodos}
+ 
+Un \textbf{sistema distribuido} es un conjunto de nodos de cómputo autónomos, interconectados mediante una red, que colaboran para alcanzar un objetivo común y son percibidos por el usuario final como un sistema único y coherente \cite{ref15}. La comunicación entre estos nodos puede realizarse mediante cualquiera de los dos paradigmas analizados, dependiendo de los requisitos de consistencia, rendimiento y disponibilidad.
+ 
+En la práctica, los sistemas distribuidos modernos —incluyendo microservicios, arquitecturas orientadas a eventos y plataformas de streaming— utilizan una combinación estratégica de comunicación síncrona y asíncrona para optimizar cada aspecto de su funcionamiento \cite{ref16}.
+ 
+\subsection{Comunicación distribuida síncrona}
+ 
+En el contexto distribuido, la comunicación síncrona implica que el nodo cliente aguarda activamente la respuesta del nodo servidor. Este modelo presenta las siguientes implicaciones operativas \cite{ref7}:
+ 
+\begin{itemize}
+  \item Si el servidor falla, se producen bloqueos, timeouts o esperas indefinidas en el cliente.
+  \item El acoplamiento directo simplifica el diseño del sistema, pero reduce su resiliencia frente a fallos parciales.
+  \item La salud global del sistema depende críticamente de la disponibilidad de cada servicio interconectado en la cadena de llamadas.
+\end{itemize}
+ 
+\subsection{Comunicación distribuida asíncrona}
+ 
+La comunicación distribuida asíncrona introduce un \textbf{intermediario} —el \textit{message broker} o cola de mensajes— que desacopla al emisor del receptor. Esto permite que cada nodo opere de forma independiente y que el sistema absorba fallos parciales sin propagarlos a toda la red \cite{ref17}.
+ 
+%================================================================
+%  6. MIDDLEWARE Y MESSAGE BROKER
+%================================================================
+\section{Middleware y Message Broker}
+ 
+\subsection{Definición de Middleware}
+ 
+El \textbf{middleware} es una capa de software que actúa como intermediario entre distintas aplicaciones y servicios, facilitando la comunicación, la gestión de datos y la integración en entornos distribuidos heterogéneos. Va más allá de las funcionalidades del sistema operativo y la red, ofreciendo servicios avanzados como gestión de transacciones, directorios, seguridad y control de acceso \cite{ref18}.
+ 
+\subsection{Definición de Message Broker}
+ 
+Un \textbf{message broker} es un tipo específico de middleware orientado a la gestión del envío y la recepción de mensajes entre servicios. Su función principal es desacoplar a los emisores de los receptores, almacenando, enrutando y, en algunos casos, transformando los mensajes para garantizar una comunicación fiable, persistente y asíncrona \cite{ref11}.
+ 
+\subsection{Tecnologías comunes de Message Broker}
+ 
+\begin{description}
+  \item[Apache Kafka:] plataforma de streaming distribuido de alto rendimiento, optimizada para el procesamiento de eventos en tiempo real y la ingesta de grandes volúmenes de datos. Ofrece durabilidad mediante la replicación de particiones y soporte para múltiples consumidores simultáneos \cite{ref19}.
+  \item[RabbitMQ:] broker de mensajes de propósito general basado en el protocolo AMQP. Prioriza la entrega garantizada, la flexibilidad de enrutamiento y la simplicidad de configuración. Es especialmente adecuado para escenarios donde el orden de entrega y la confirmación de procesamiento son críticos \cite{ref20}.
+  \item[ActiveMQ:] implementación de código abierto del estándar JMS (\textit{Java Message Service}). Ampliamente utilizado en entornos empresariales Java para la integración de aplicaciones heterogéneas.
+  \item[Google Cloud Pub/Sub:] servicio gestionado de mensajería en la nube de Google, basado en el modelo publicador-suscriptor, diseñado para escalar de forma elástica ante picos de tráfico.
+  \item[Azure Service Bus:] servicio de mensajería empresarial de Microsoft Azure, con soporte para colas de mensajes y tópicos de publicación-suscripción, con garantías de entrega configurable.
+\end{description}
+ 
+%================================================================
+%  7. ARQUITECTURA BASADA EN EVENTOS (EDA)
+%================================================================
+\section{Arquitectura Basada en Eventos (EDA)}
+ 
+\subsection{Concepto y fundamentos}
+ 
+La \textbf{Arquitectura Orientada a Eventos} (\textit{Event-Driven Architecture}, EDA) es un patrón de diseño de sistemas distribuidos que promueve la comunicación asíncrona y el desacoplamiento entre componentes mediante la producción, detección, consumo y reacción a \textit{eventos} \cite{ref21}.
+ 
+Un \textbf{evento} es la representación de un cambio de estado significativo en el sistema —por ejemplo, un pedido realizado, un usuario registrado o un pago aprobado—. Los eventos son inmutables y no tienen un destino específico; simplemente son publicados y consumidos por cualquier componente que esté suscrito.
+ 
+\subsection{Componentes de la EDA}
+ 
+\begin{description}
+  \item[Eventos:] registros inmutables de hechos ocurridos en el sistema. No contienen lógica de negocio ni instrucciones de enrutamiento; solo describen lo que ocurrió.
+  \item[Message Queues (Colas de mensajes):] almacenan y entregan mensajes de forma confiable, desacoplando a los productores de los consumidores y permitiendo el procesamiento asíncrono y la gestión de picos de carga.
+  \item[Pub/Sub (\textit{Publicar/Suscribir}):] los productores publican mensajes en tópicos (\textit{topics}) y los consumidores se suscriben a los tópicos de su interés. Este modelo ofrece mayor flexibilidad que las colas punto a punto, ya que un mismo mensaje puede ser consumido por múltiples suscriptores independientes \cite{ref22}.
+\end{description}
+ 
+\subsection{Ventajas de la EDA}
+ 
+Los estudios empíricos demuestran que la adopción de EDA produce mejoras medibles en el rendimiento de los sistemas distribuidos \cite{ref21}:
+ 
+\begin{itemize}
+  \item Reducción de la latencia de respuesta en un 19,18\% respecto a arquitecturas API-Driven síncronas.
+  \item Reducción de la tasa de errores en un 34,40\%.
+  \item Mayor escalabilidad horizontal al no requerir acoplamiento directo entre servicios.
+  \item Mayor tolerancia a fallos gracias a la persistencia de mensajes en las colas.
+\end{itemize}
+ 
+%================================================================
+%  8. CASO DE ESTUDIO: MODELO BANCARIO HÍBRIDO
+%================================================================
+\section{Caso de Estudio: El Modelo Bancario Híbrido}
+ 
+\subsection{Introducción al caso}
+ 
+La industria bancaria constituye un ejemplo paradigmático de cómo los sistemas de producción a escala real combinan ambos paradigmas de comunicación para satisfacer requisitos contrapuestos: por un lado, la necesidad de \textbf{consistencia inmediata} en las operaciones financieras; por otro, la necesidad de \textbf{escalabilidad y eficiencia} en las operaciones secundarias \cite{ref14}.
+ 
+Un banco no puede elegir únicamente un paradigma; debe implementar una \textbf{arquitectura híbrida} que garantice simultáneamente la seguridad del dinero y la velocidad de la plataforma.
+ 
+\subsection{Fase síncrona: consistencia crítica}
+ 
+Las operaciones que afectan directamente al saldo del cliente se procesan de forma síncrona y bloqueante. Durante esta fase, el sistema:
+ 
+\begin{enumerate}
+  \item Congela la interacción del usuario mientras el proceso está en curso.
+  \item Valida el saldo disponible en tiempo real.
+  \item Debita el monto de la cuenta origen.
+  \item Acredita el monto en la cuenta destino.
+  \item Devuelve una confirmación definitiva al cliente.
+\end{enumerate}
+ 
+Este modelo síncrono previene situaciones de fraude como el \textit{double spending} (doble gasto de fondos), en que un mismo saldo podría utilizarse en dos transacciones concurrentes si no existiera el bloqueo atómico \cite{ref8}.
+ 
+\subsection{Fase asíncrona: operaciones no bloqueantes}
+ 
+Una vez que la transacción principal ha sido confirmada y el cliente ha recibido su «OK», el sistema encola de forma asíncrona un conjunto de tareas secundarias:
+ 
+\begin{itemize}
+  \item Envío del SMS o notificación push de alerta al cliente.
+  \item Generación del archivo de recibo en formato PDF.
+  \item Registro de la transacción en el sistema de auditoría.
+  \item Análisis post-transaccional para detección de patrones de fraude.
+  \item Actualización de reportes y estados de cuenta.
+\end{itemize}
+ 
+Todas estas tareas se procesan de forma diferida, sin afectar el tiempo de respuesta percibido por el usuario, y son gestionadas por workers asíncronos a través de colas de mensajes.
+ 
+\subsection{Tecnologías utilizadas en la arquitectura bancaria}
+ 
+\begin{table}[H]
+\centering
+\caption{Tecnologías en la arquitectura bancaria híbrida}
+\label{tab:banco}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|X|X|X|}
+\hline
+\textbf{Operación} & \textbf{Modelo} & \textbf{Tecnología típica} \\
+\hline
+Autenticación & Síncrono & REST API / gRPC \\
+\hline
+Validación de saldo & Síncrono & REST API / HTTP Blocking \\
+\hline
+Transferencia de fondos & Síncrono & REST API / gRPC \\
+\hline
+Envío de SMS/notificación & Asíncrono & Kafka / RabbitMQ \\
+\hline
+Generación de recibo PDF & Asíncrono & RabbitMQ / ActiveMQ \\
+\hline
+Análisis antifraude & Asíncrono & Apache Kafka \\
+\hline
+\end{tabularx}
+\end{table}
+ 
+%================================================================
+%  9. TECNOLOGÍAS DE COMUNICACIÓN EN DETALLE
+%================================================================
+\section{Tecnologías de Comunicación en Detalle}
+ 
+\subsection{Tecnologías síncronas}
+ 
+\subsubsection{RPC (Remote Procedure Call)}
+ 
+El \textit{Remote Procedure Call} (RPC) es un mecanismo de comunicación distribuida que permite a un programa invocar procedimientos o funciones que residen en un nodo remoto de la red como si fueran llamadas locales, ocultando toda la complejidad del protocolo de red subyacente. El modelo RPC es síncrono por definición: el proceso llamador queda bloqueado hasta recibir el resultado del proceso remoto \cite{ref23}. Tecnologías modernas como gRPC extienden este concepto incorporando serialización binaria eficiente (\textit{Protocol Buffers}), multiplexación HTTP/2 y soporte para streaming bidireccional.
+ 
+\subsubsection{REST (Representational State Transfer)}
+ 
+REST es el estilo arquitectónico más utilizado para el diseño de APIs web. Se basa en los principios de statelessness (sin estado), identificación de recursos mediante URIs, manipulación de recursos a través de métodos HTTP estándar (GET, POST, PUT, DELETE) y representaciones transferibles en formatos como JSON o XML \cite{ref5}. Su modelo de comunicación es síncrono: cada petición HTTP espera su respuesta correspondiente antes de que el cliente pueda continuar.
+ 
+\subsubsection{HTTP Blocking}
+ 
+El modelo de comunicación HTTP por defecto (\textit{HTTP/1.1}) implementa un mecanismo de bloqueo en el que cada petición ocupa un hilo de ejecución del servidor hasta que la respuesta es enviada. Bajo alta concurrencia, esto puede convertirse en un cuello de botella significativo. \textit{HTTP/2} introduce la multiplexación de solicitudes sobre una única conexión TCP, lo que reduce parcialmente este problema, aunque el modelo de espera del cliente sigue siendo síncrono desde la perspectiva de la aplicación \cite{ref7}.
+ 
+\subsection{Tecnologías asíncronas}
+ 
+\subsubsection{Apache Kafka}
+ 
+Apache Kafka es una plataforma de streaming distribuido diseñada para el procesamiento de eventos en tiempo real a alta escala. Su arquitectura se basa en \textit{tópicos} particionados y replicados, que permiten el consumo paralelo de mensajes por múltiples grupos de consumidores simultáneamente. Kafka es especialmente adecuado para pipelines de datos, ingesta de logs, análisis en tiempo real y escenarios donde la durabilidad y el alto rendimiento son prioritarios \cite{ref19}.
+ 
+\subsubsection{RabbitMQ}
+ 
+RabbitMQ es un broker de mensajes de propósito general que implementa el protocolo AMQP (\textit{Advanced Message Queuing Protocol}). Ofrece enrutamiento flexible mediante intercambiadores (\textit{exchanges}), soporte para múltiples patrones de mensajería (directo, fanout, topic, headers) y garantías configurables de entrega (at-most-once, at-least-once). Es la solución preferida cuando la prioridad es la fiabilidad de entrega y la flexibilidad de enrutamiento \cite{ref20}.
+ 
+%================================================================
+%  10. DISCUSIÓN Y ANÁLISIS CRÍTICO
+%================================================================
+\section{Discusión y Análisis Crítico}
+ 
+\subsection{Impacto en el rendimiento}
+ 
+Investigaciones recientes en el campo de los sistemas distribuidos han demostrado empíricamente que la comunicación asíncrona basada en EDA produce mejoras sustanciales de rendimiento frente a la comunicación síncrona basada en APIs HTTP, especialmente bajo condiciones de alta carga concurrente \cite{ref21}. Sin embargo, esta ventaja tiene un costo: la mayor complejidad de implementación y depuración, la necesidad de gestionar la consistencia eventual y la dificultad para rastrear flujos de ejecución distribuidos.
+ 
+\subsection{El dilema de la consistencia}
+ 
+Uno de los desafíos fundamentales de los sistemas distribuidos asíncronos es la \textbf{consistencia eventual}: dado que los mensajes se procesan de forma diferida, puede existir un período de tiempo en que diferentes nodos del sistema tengan visiones inconsistentes del estado global. Para aplicaciones financieras o de misión crítica, este comportamiento es inaceptable en las operaciones principales, razón por la cual se recurre al modelo híbrido analizado en el caso bancario \cite{ref16}.
+ 
+\subsection{Escalabilidad y resiliencia}
+ 
+La arquitectura asíncrona basada en colas de mensajes y brokers permite escalar horizontalmente los consumidores de forma independiente al productor. Ante un pico de tráfico, los mensajes se acumulan en la cola y son procesados gradualmente, evitando la sobrecarga del sistema. Esta característica hace que las arquitecturas EDA sean especialmente adecuadas para plataformas con millones de usuarios concurrentes, como las mencionadas en el caso de Uber y TikTok \cite{ref13}.
+ 
+\subsection{Tendencias actuales}
+ 
+Las tendencias emergentes en el diseño de sistemas distribuidos apuntan hacia la adopción de arquitecturas nativas en la nube que combinen los dos paradigmas de forma inteligente, utilizando tecnologías como Apache Kafka para el procesamiento de streams, gRPC para la comunicación de baja latencia entre microservicios, y plataformas de orquestación como Kubernetes para gestionar el ciclo de vida de los componentes \cite{ref24}.
+ 
+%================================================================
+%  11. CONCLUSIONES
+%================================================================
+\section{Conclusiones}
+ 
+A partir del análisis desarrollado a lo largo del presente informe, es posible establecer las siguientes conclusiones:
+ 
+\begin{enumerate}
+  \item La \textbf{computación síncrona} y la \textbf{computación asíncrona} son paradigmas complementarios, no excluyentes. Los sistemas distribuidos modernos de mayor complejidad y escala adoptan arquitecturas híbridas que combinan ambos modelos según los requisitos específicos de cada operación.
+ 
+  \item El modelo \textbf{síncrono} es la opción natural cuando se requiere confirmación inmediata del resultado de una operación, especialmente en transacciones financieras, autenticación o consultas de datos en tiempo real. Su principal limitación es el bloqueo del hilo de ejecución y la baja tolerancia a fallos.
+ 
+  \item El modelo \textbf{asíncrono} es superior en escenarios de alta concurrencia, operaciones de larga duración y sistemas que deben absorber picos de tráfico sin degradar la experiencia del usuario. Su complejidad de implementación y la necesidad de gestionar la consistencia eventual son los principales desafíos a considerar.
+ 
+  \item Las tecnologías de \textbf{message broker} —Apache Kafka, RabbitMQ, ActiveMQ— son el pilar de la comunicación asíncrona en arquitecturas de microservicios y sistemas distribuidos modernos, proporcionando persistencia, desacoplamiento y escalabilidad horizontal.
+ 
+  \item La \textbf{Arquitectura Basada en Eventos} (EDA) representa la evolución natural de los sistemas distribuidos asíncronos, ofreciendo mejoras medibles de rendimiento, escalabilidad y resiliencia respecto a las arquitecturas puramente síncronas basadas en APIs REST.
+ 
+  \item La industria bancaria ilustra de forma paradigmática cómo los sistemas de producción reales utilizan ambos paradigmas: el modelo síncrono garantiza la \textit{atomicidad} e \textit{integridad} de las operaciones financieras críticas, mientras que el modelo asíncrono optimiza las operaciones secundarias y mejora la experiencia del usuario.
+\end{enumerate}
+ 
+%================================================================
+%  REFERENCIAS
+%================================================================
+\newpage
+\section*{Referencias}
+\addcontentsline{toc}{section}{Referencias}
+ 
+\begin{thebibliography}{99}
+ 
+\bibitem{ref1}
+A. Rahmatulloh, F. Nugraha, R. Gunawan, I. Darmawan, E. Haerani y R. Rizal,
+``Event-Driven Architecture to Improve Performance and Scalability in Microservices-Based Systems,''
+\textit{2022 International Conference Advancement in Data Science, E-learning and Information Systems (ICADEIS)},
+pp.~1--6, 2022.
+doi: \href{https://doi.org/10.1109/ICADEIS56544.2022.10037390}{10.1109/ICADEIS56544.2022.10037390}.
+ 
+\bibitem{ref2}
+N. Surantha, O. K. Utomo, E. M. Lionel, I. D. Gozali y S. M. Isa,
+``Intelligent Sleep Monitoring System Based on Microservices and Event-Driven Architecture,''
+\textit{IEEE Access},
+vol.~10, pp.~42069--42085, 2022.
+doi: \href{https://doi.org/10.1109/ACCESS.2022.3167637}{10.1109/ACCESS.2022.3167637}.
+ 
+\bibitem{ref3}
+B. Charron-Bost, F. Pedone y A. Schiper (Eds.),
+``Replication: Theory and Practice,''
+\textit{Lecture Notes in Computer Science}, vol.~5959,
+Springer, Berlin, Heidelberg, 2010.
+doi: \href{https://doi.org/10.1007/978-3-642-11294-2}{10.1007/978-3-642-11294-2}.
+ 
+\bibitem{ref4}
+R. van Glabbeek, U. Goltz y J.-W. Schicke,
+``On Synchronous and Asynchronous Interaction in Distributed Systems,''
+\textit{Electronic Notes in Theoretical Computer Science},
+vol.~209, pp.~167--197, 2008.
+doi: \href{https://doi.org/10.1016/j.entcs.2008.04.011}{10.1016/j.entcs.2008.04.011}.
+ 
+\bibitem{ref5}
+G. Blinowski, A. Ojdowska y A. Przybyłek,
+``Monolithic vs. Microservice Architecture: A Performance and Scalability Evaluation,''
+\textit{IEEE Access},
+vol.~10, pp.~20357--20374, 2022.
+doi: \href{https://doi.org/10.1109/ACCESS.2022.3152803}{10.1109/ACCESS.2022.3152803}.
+ 
+\bibitem{ref6}
+R. T. Fielding,
+``Architectural Styles and the Design of Network-based Software Architectures,''
+Doctoral dissertation, University of California, Irvine, 2000.
+[En línea]. Disponible: \url{https://ics.uci.edu/~fielding/pubs/dissertation/top.htm}.
+ 
+\bibitem{ref7}
+S. Li et al.,
+``Understanding and Addressing Quality Attributes of Microservices Architecture: A Systematic Literature Review,''
+\textit{Information and Software Technology},
+vol.~131, p.~106449, 2021.
+doi: \href{https://doi.org/10.1016/j.infsof.2020.106449}{10.1016/j.infsof.2020.106449}.
+ 
+\bibitem{ref8}
+Y. Abgaz et al.,
+``Decomposition of Monolith Applications into Microservices Architectures: A Systematic Review,''
+\textit{IEEE Transactions on Software Engineering},
+vol.~49, no.~8, pp.~4213--4242, 2023.
+doi: \href{https://doi.org/10.1109/TSE.2023.3287297}{10.1109/TSE.2023.3287297}.
+ 
+\bibitem{ref9}
+D. Weyns,
+``An Introduction to Multiagent Systems,''
+\textit{2nd ed.}, Wiley, 2010.
+doi: \href{https://doi.org/10.1145/1831690.1831731}{10.1145/1831690.1831731}.
+ 
+\bibitem{ref10}
+E. Laigner, M. Kalinowski, P. Diniz, L. Barros, C. Cassino, M. Lemos, D. Arruda, S. Lifschitz y Y. Zhou,
+``From a Monolithic Big Data System to a Microservices Event-Driven Architecture,''
+\textit{2020 46th Euromicro Conference on Software Engineering and Advanced Applications (SEAA)},
+pp.~213--220, 2020.
+doi: \href{https://doi.org/10.1109/SEAA51224.2020.00042}{10.1109/SEAA51224.2020.00042}.
+ 
+\bibitem{ref11}
+A. Akbulut y H. G. Perros,
+``Performance Analysis of Microservice Design Patterns,''
+\textit{IEEE Internet Computing},
+vol.~23, no.~6, pp.~19--27, Nov.--Dic. 2019.
+doi: \href{https://doi.org/10.1109/MIC.2019.2951337}{10.1109/MIC.2019.2951337}.
+ 
+\bibitem{ref12}
+T. Cerny, M. J. Donahoo y M. Trnka,
+``Contextual Understanding of Microservice Architecture: Current and Future Directions,''
+\textit{ACM SIGAPP Applied Computing Review},
+vol.~17, no.~4, pp.~29--45, 2017.
+doi: \href{https://doi.org/10.1145/3183628.3183631}{10.1145/3183628.3183631}.
+ 
+\bibitem{ref13}
+X. Zhou, X. Peng, T. Xie, J. Sun, C. Ji, W. Li y D. Ding,
+``Fault Analysis and Debugging of Microservice Systems: Industrial Survey, Benchmark System, and Empirical Study,''
+\textit{IEEE Transactions on Software Engineering},
+vol.~47, no.~2, pp.~243--260, 2021.
+doi: \href{https://doi.org/10.1109/TSE.2018.2887384}{10.1109/TSE.2018.2887384}.
+ 
+\bibitem{ref14}
+M. Fowler y J. Lewis,
+``Microservices: a definition of this new architectural term,''
+martinfowler.com, 2014.
+[En línea]. Disponible: \url{https://martinfowler.com/articles/microservices.html}.
+ 
+\bibitem{ref15}
+A. Tanenbaum y M. van Steen,
+\textit{Distributed Systems: Principles and Paradigms}, 3a~ed.
+Prentice Hall, 2016.
+ 
+\bibitem{ref16}
+M. Kleppmann,
+\textit{Designing Data-Intensive Applications: The Big Ideas Behind Reliable, Scalable, and Maintainable Systems}.
+O'Reilly Media, 2017.
+ 
+\bibitem{ref17}
+I. Weber, X. Xu, R. Riveret, G. Governatori, A. Ponomarev y J. Mendling,
+``Untrusted Business Process Monitoring and Execution Using Blockchain,''
+\textit{Lecture Notes in Computer Science}, vol.~9850, pp.~329--347, 2016.
+doi: \href{https://doi.org/10.1007/978-3-319-45348-4_19}{10.1007/978-3-319-45348-4\_19}.
+ 
+\bibitem{ref18}
+D. E. Bakken,
+``Middleware,''
+en \textit{Encyclopedia of Distributed Computing},
+Kluwer Academic Publishers, 2002.
+ 
+\bibitem{ref19}
+J. Kreps, N. Narkhede y J. Rao,
+``Kafka: A Distributed Messaging System for Log Processing,''
+\textit{Proc. of NetDB Workshop at VLDB}, 2011.
+[En línea]. Disponible: \url{http://sites.computer.org/debull/A12june/pipeline.pdf}.
+ 
+\bibitem{ref20}
+A. Videla y J. J. W. Williams,
+\textit{RabbitMQ in Action: Distributed Messaging for Everyone}.
+Manning Publications, 2012.
+ 
+\bibitem{ref21}
+S. Hassan, N. Ali y R. Bahsoon,
+``Microservice Ambients: An Architectural Meta-Modelling Approach for Microservice Granularity,''
+\textit{2017 IEEE International Conference on Software Architecture (ICSA)},
+pp.~1--10, 2017.
+doi: \href{https://doi.org/10.1109/ICSA.2017.32}{10.1109/ICSA.2017.32}.
+ 
+\bibitem{ref22}
+N. Dragoni et al.,
+``Microservices: Yesterday, Today, and Tomorrow,''
+en \textit{Present and Ulterior Software Engineering},
+Springer, pp.~195--216, 2017.
+doi: \href{https://doi.org/10.1007/978-3-319-67425-4_12}{10.1007/978-3-319-67425-4\_12}.
+ 
+\bibitem{ref23}
+A. D. Birrell y B. J. Nelson,
+``Implementing Remote Procedure Calls,''
+\textit{ACM Transactions on Computer Systems},
+vol.~2, no.~1, pp.~39--59, Feb. 1984.
+doi: \href{https://doi.org/10.1145/2080.357392}{10.1145/2080.357392}.
+ 
+\bibitem{ref24}
+D. Taibi, V. Lenarduzzi y C. Pahl,
+``Architectural Patterns for Microservices: A Systematic Mapping Study,''
+\textit{Proc. of the 8th International Conference on Cloud Computing and Services Science (CLOSER 2018)},
+pp.~221--232, 2018.
+doi: \href{https://doi.org/10.5220/0006798302210232}{10.5220/0006798302210232}.
+ 
+\end{thebibliography}
+ 
+\end{document}
+ 
